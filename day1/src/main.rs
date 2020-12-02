@@ -247,13 +247,15 @@ fn main() {
 
     for x in &nums {
         for y in &nums {
-            let sum = x + y;
-            let is_match = sum == 2020;
-            if !is_match {
-                continue;
+            for z in &nums {
+                let sum = x + y + z;
+                let is_match = sum == 2020;
+                if !is_match {
+                    continue;
+                }
+                let product = x * y * z;
+                println!("{} {} {} {} {}", x, y, z, is_match, product);
             }
-            let product = x * y;
-            println!("{} {} {} {}", x, y, is_match, product);
         }
     }
 }
