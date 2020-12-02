@@ -7,8 +7,20 @@ fn main() {
     if let Ok(lines) = read_lines("input.txt") {
         // Consumes the iterator, returns an (Optional) String
         for line in lines {
-            if let Ok(ip) = line {
-                println!("{}", ip);
+        	// format 4-10 h: wmfqghskgjtt
+            if let Ok(lineStr) = line {
+            	let lineTokens = lineStr.split(" ");
+            	let lineTokenStr: Vec<&str> = lineTokens.collect();
+            	let minMaxTokens: Vec<&str> = lineTokenStr[0].split("-").collect();
+            	let min = minMaxTokens[0].parse::<i64>().unwrap_or(-1);
+            	let max = minMaxTokens[1].parse::<i64>().unwrap_or(-1);
+            	if min == -1 || max == -1 {
+            		continue
+            	}
+            	let charStrDirty = lineTokenStr[1];
+            	let charStr : String = charStrDirty.chars().into_iter().take(1).collect();
+            	let pwd = lineTokenStr[2];
+            	println!("{} {} {} {}", min, max, charStr, pwd);
             }
         }
     }
