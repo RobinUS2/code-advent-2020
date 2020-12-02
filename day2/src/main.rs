@@ -5,6 +5,7 @@ use std::path::Path;
 fn main() {
     // File hosts must exist in current path before this produces output
     if let Ok(lines) = read_lines("input.txt") {
+    	let mut numValid = 0;
         // Consumes the iterator, returns an (Optional) String
         for line in lines {
         	// format 4-10 h: wmfqghskgjtt
@@ -20,9 +21,15 @@ fn main() {
             	let charStrDirty = lineTokenStr[1];
             	let charStr : String = charStrDirty.chars().into_iter().take(1).collect();
             	let pwd = lineTokenStr[2];
-            	println!("{} {} {} {}", min, max, charStr, pwd);
+            	let numFound = pwd.matches(&charStr).count() as i64;
+            	let valid = numFound >= min && numFound <= max;
+            	if valid {
+            		numValid += 1;
+            	}
+            	println!("{} {} {} {} {} {}", min, max, charStr, pwd, numFound, valid);
             }
         }
+        println!("numValid {}", numValid)
     }
 }
 
