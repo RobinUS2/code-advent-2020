@@ -27,20 +27,25 @@ fn main() {
             	let pwdBytes = pwd.as_bytes();
             	let mut foundA = false;
             	let mut foundB = false;
-            	if posA < pwdLen {
-	            	let pwdA = pwdBytes[posA-1];
+            	if posA <= pwdLen {
+	            	let pwdA = pwdBytes[posA-1] as char;
 	            	if pwdA == charStrChar {
 	            		foundA = true;
 	            	}
 	            }
-	            if posB < pwdLen {
-	            	let pwdB = pwdBytes[posB-1];
+	            if posB <= pwdLen {
+	            	let pwdB = pwdBytes[posB-1] as char;
 	            	if pwdB == charStrChar {
 	            		foundB = true;
 	            	}
 	            }
 
-            	println!("{} {} {} {} {} {}", posA, posB, charStr, pwd, pwdA, pwdB);
+	            let valid = (foundA && !foundB) || (!foundA && foundB);
+	            if valid {
+	            	numValid += 1;
+	            }
+
+            	println!("{} {} {} {} {} {} {}", posA, posB, charStr, pwd, foundA, foundB, valid);
             }
         }
         println!("numValid {}", numValid)
