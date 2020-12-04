@@ -1,6 +1,7 @@
 use std::io::{stdout, Write};
 use std::env;
 use std::collections::HashMap;
+use regex::Regex;
 
 extern crate curl;
 
@@ -23,18 +24,81 @@ fn main() {
 				// newline
 				println!("{}", keyValues.len());
 				let mut allFound = true;
+				let mut invalid = false;
 				for requiredKey in &REQUIRED_KEYS {
-					let val = keyValues.get(&requiredKey.to_string());
+					let val: Option<&String> = keyValues.get(&requiredKey.to_string());
 					if val == None {
 						allFound = false;
 						break;
 					}
+
+					// validators
+					match val {
+						Some(realVale) => {
+							match requiredKey {
+					            &"byr" => {
+					            	let v = realVale.parse::<i64>().unwrap_or(-1);
+					            	if v < 1920 || v > 2002 {
+					            		invalid = true;
+					            	}
+					            },
+					            &"iyr" => {
+					            	let v = realVale.parse::<i64>().unwrap_or(-1);
+					            	if v < 2010 || v > 2020 {
+					            		invalid = true;
+					            	}
+					            },
+					            &"eyr" => {
+					            	let v = realVale.parse::<i64>().unwrap_or(-1);
+					            	if v < 2020 || v > 2030 {
+					            		invalid = true;
+					            	}
+					            },
+					            &"hgt" => {
+					            	let v = parse_int(realVale);
+			            			let isCm = realVale.ends_with("cm");
+			            			let isIn = realVale.ends_with("in");
+			            			if !isCm && !isIn {
+			            				invalid = true;
+			            			} else if isCm && (v < 150  || v > 193) {
+			            				invalid = true;
+			            			} else if isIn && (v < 59  || v > 76) {
+			            				invalid = true;
+			            			}
+			            			// println!("hgt {:?} isCm {} isIn {}", v, isCm, isIn);
+					            },
+					            &"hcl" => {
+					            	let re = Regex::new(r"^#[0-9a-f]{6}$").unwrap();
+					            	if !re.is_match(realVale) {
+					            		invalid = true;
+					            	}
+					            },
+					            &"ecl" => {
+					            	let re = Regex::new(r"^(amb|blu|brn|gry|grn|hzl|oth)$").unwrap();
+					            	if !re.is_match(realVale) {
+					            		invalid = true;
+					            	}
+					            },
+					            &"pid" => {
+					            	let re = Regex::new(r"^[0-9]{9}$").unwrap();
+					            	if !re.is_match(realVale) {
+					            		invalid = true;
+					            	}
+					            },
+					            _ => (),
+					        }
+					    },
+					    None => (),
+				    }
+
 					println!("{:?} {:?}", requiredKey, val);
 				}
 				for (k, v) in &keyValues {
 			        println!("{:?}: {:?}", k, v);
 			    }
 				if !allFound {
+					println!("incomplete");
+				} else if invalid {
 					println!("invalid");
 				} else {
 					println!("valid");
@@ -53,6 +117,20 @@ fn main() {
 	}
 
 	println!("numValid {:?}", numValid);
+}
+
+fn parse_int(input: &str) -> i64 {
+    let re = Regex::new(r"([0-9]+)").unwrap();
+    let capture = re.captures(input);
+    let mut v: i64 = 0;
+    match capture {
+    	Some(caps) => {
+	    	let firstCap = caps.get(1).map_or("-2", |m| m.as_str());
+	    	v = firstCap.parse::<i64>().unwrap_or(-1);
+    	},
+    	None => (),
+    }
+    return v;
 }
 
 pub fn get_data(day: i32) -> String {
